@@ -1,11 +1,14 @@
 package itacademy.kg.musicshop;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -37,15 +40,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private int image1 [] = {R.drawable.keyboard,R.drawable.guitar,R.drawable.drums,R.drawable.rock};
     private ArrayList<User> persona;
     private String selectedItam;
+    private int index = 0;
+    private ArrayList<Resourse> resourses = UserInformation.resourses2;
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-
-        MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.menu,menu);
-        return super.onCreateOptionsMenu(menu);
-
-    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,6 +90,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         sum.setText(String.valueOf(priceItam));
         count = 1;
         number.setText(String.valueOf(count));
+        index = image1[position];
         imageView.setImageResource(image1[position]);
     }
 
@@ -100,6 +98,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onNothingSelected(AdapterView<?> parent) {
 
     }
+
+
 
     @Override
     public void onClick(View v) {
@@ -121,44 +121,40 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 sum.setText(String.valueOf(product));
                 break;
             case R.id.addToCart:
-                persona = new ArrayList<>();
-                persona.add(new User(personInfo.getText().toString(),selectedItam, count,product));
-                for (User info : persona) {
-                    if (info.name.equals("")){
-                        Toast.makeText(MainActivity.this,"Введите имя ",Toast.LENGTH_SHORT).show();
+                    if (!personInfo.getText().toString().equals("")){
+                        persona = new ArrayList<>();
+                        persona.add(new User(personInfo.getText().toString(),selectedItam, count,product));
+                        UserInformation information = new UserInformation();
+                        information.addInfo(new Resourse(index,selectedItam,String.valueOf(count),String.valueOf(product),personInfo.getText().toString()));
+
+                        Log.i(TAG,persona.toString());
                     }else {
-                        Log.i(TAG,info.toString());
+                        Toast.makeText(MainActivity.this,"Введите имя ",Toast.LENGTH_SHORT).show();
                     }
-
-                }
-
                 break;
         }
     }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.menu,menu);
+        return super.onCreateOptionsMenu(menu);
 
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.menu:
+                if (!personInfo.getText().toString().equals("")) {
+                    startActivity(new Intent(MainActivity.this, ThingsActivity.class));
+                }else {
+                    Toast.makeText(MainActivity.this,"Введите имя ",Toast.LENGTH_SHORT).show();
+                }
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 
 }
-
- class User{
-    String name;
-    String thingsName;
-    int amount;
-    int quantity;
-
-     public User(String name, String thingsName, int amount, int quantity) {
-         this.name = name;
-         this.thingsName = thingsName;
-         this.amount = amount;
-         this.quantity = quantity;
-     }
-
-     @Override
-     public String toString() {
-         return "User{" +
-                 "name='" + name + '\'' +
-                 ", thingsName='" + thingsName + '\'' +
-                 ", amount=" + amount +
-                 ", quantity=" + quantity +
-                 '}';
-     }
- }
